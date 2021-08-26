@@ -1,13 +1,12 @@
-import React from 'react'
+const React = require('react')
 
 const hello = () => {
-    console.log('hello')
+  console.log('hello')
 }
 
-export default function(props) {
-   return (<div>
-        <h1>My blog post</h1>
-        <p>bla bla@</p>
-        <button onClick={hello}>Hello</button>
-    </div>)
+module.exports = function (props) {
+  return (<div>
+    <h1>Hello {props.name}</h1>
+    <button onClick={hello}>Click me!!</button>
+  </div>)
 }

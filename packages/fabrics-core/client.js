@@ -18,7 +18,7 @@ const fragmentName = '${fragmentName}'
       console.log(\'module.hot is true')
       module.hot.accept('../src/fragments/${fragmentName}', () => {
         console.log(\`hot reloading ${fragmentName}\`)
-        const ReloadedFragment = require('../src/fragments/${fragmentName}').default
+        const ReloadedFragment = require('../src/fragments/${fragmentName}')
         preloadedState = window['${getStateName(fragmentName)}']
         hydrate(<ReloadedFragment {...preloadedState} />, rootElement)
       })

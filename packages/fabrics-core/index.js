@@ -21,19 +21,23 @@ const renderFragment = (html, preloadedState, fragmentName, assetPrefix, jsFileN
      <html>`
 }
 
-
-
 module.exports = () => {
   return {
     getRequestHandler: () => async (req, res) => {
       const fragmentName = 'posts'
-      const fragment = require.main.require(fabricsWebpack.getCompiledFragmentPathname(fragmentName)).default
-      const props = {}
+      const fragment = require.main.require(fabricsWebpack.getCompiledFragmentPathname(fragmentName))
+      const fragmentServerFile = require.main.require(`./fragments/${fragmentName}/server`)
+      let props = {}
+      if (fragmentServerFile) {
+        if (fragmentServerFile.getServerSideProps) {
+          props = await fragmentServerFile.getServerSideProps(req)
+        }
+      }
       const webDevMiddleWareWebpack = res.locals.webpack
 
       if (req.path.match(config.assetPrefix)) {
         let readStream
-        if(webDevMiddleWareWebpack){
+        if (webDevMiddleWareWebpack) {
           readStream = fabricsWebpack.getFragmentStream(webDevMiddleWareWebpack, fragmentName)
         } else {
           readStream = fs.createReadStream(distPath + '/client/' + fragmentName + '.js')
@@ -44,15 +48,16 @@ module.exports = () => {
           const html = reactServer.renderToString(React.createElement(fragment, props))
 
           let jsFileName = `${fragmentName}-client.js`
-          if(webDevMiddleWareWebpack){
-            jsFileName = fabricsWebpack.getJsFileName(webDevMiddleWareWebpack,fragmentName)
+          if (webDevMiddleWareWebpack) {
+            jsFileName = fabricsWebpack.getJsFileName(webDevMiddleWareWebpack, fragmentName)
           }
           res.send(renderFragment(html, props, fragmentName, config.assetPrefix, jsFileName))
         } else {
           res.send(`No fragment found for ${fragmentName}`)
         }
       }
-    },
+    }
+    ,
     prepare: (server) => {
       deleteFolderRecursive(config.distDir)
       generateClientJs()
