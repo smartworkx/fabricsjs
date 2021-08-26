@@ -2,7 +2,7 @@
   "name": "fabricsjs",
   "version": "0.0.1",
   "description": "Nextjs like framework for creating fragments for micro frontend applications",
-  "main": "../../index.js",
+  "main": "./index.js",
   "scripts": {
     "test": "test",
     "standard": "standard --fix"
@@ -10,11 +10,8 @@
   "keywords": [
     "nextjs",
     "tailor",
-    "micro",
-    "frontend",
-    "server",
-    "side",
-    "rendering"
+    "micro-frontends",
+    "server side rendering"
   ],
   "author": "Joris Wijlens",
   "license": "ISC",
@@ -22,13 +19,17 @@
     "@babel/core": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
     "@babel/register": "^7.5.5",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "webpack": "^4.36.1",
-    "webpack-dev-middleware": "^3.7.0",
+    "chokidar": "^3.5.2",
+    "is-object": "^1.0.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "webpack": "^5.51.1",
+    "webpack-dev-middleware": "^5.0.0",
     "webpack-hot-middleware": "^2.25.0"
   },
   "devDependencies": {
+    "jest": "^27.0.6",
+    "lerna": "^4.0.0",
     "standard": "^13.0.2"
   }
 }

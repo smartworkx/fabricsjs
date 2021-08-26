@@ -7,7 +7,7 @@ const hello = () => {
 export default function(props) {
    return (<div>
         <h1>My blog post</h1>
-        <p>bla</p>
+        <p>bla bla@</p>
         <button onClick={hello}>Hello</button>
     </div>)
 }

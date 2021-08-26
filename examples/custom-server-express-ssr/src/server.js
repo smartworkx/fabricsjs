@@ -6,10 +6,10 @@ const dev = process.env.NODE_ENV !== 'production'
 const app = fabricsjs({ dev })
 const handle = app.getRequestHandler()
 
-app.prepare().then(() => {
-  const server = express()
+const server = express()
+app.prepare(server).then(() => {
 
-  server.get('*', handle)
+  server.get('/fragments/*', handle)
 
   server.listen(port, err => {
     if (err) throw err

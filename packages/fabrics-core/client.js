@@ -7,7 +7,7 @@ const generateClientJsFragment = (fragmentName) => {
     const jsFileContent = `
 import React from 'react'
 import { hydrate } from 'react-dom'
-import Fragment from '../fragments/${fragmentName}'
+import Fragment from '../src/fragments/${fragmentName}'
 
 const fragmentName = '${fragmentName}'
 
@@ -15,9 +15,10 @@ const fragmentName = '${fragmentName}'
     let preloadedState = window['${getStateName(fragmentName)}']
     hydrate(<Fragment {...preloadedState} />, rootElement)
     if (module.hot) {
-      module.hot.accept('../fragments/${fragmentName}', () => {
+      console.log(\'module.hot is true')
+      module.hot.accept('../src/fragments/${fragmentName}', () => {
         console.log(\`hot reloading ${fragmentName}\`)
-        const ReloadedFragment = require('../fragments/${fragmentName}').default
+        const ReloadedFragment = require('../src/fragments/${fragmentName}').default
         preloadedState = window['${getStateName(fragmentName)}']
         hydrate(<ReloadedFragment {...preloadedState} />, rootElement)
       })
