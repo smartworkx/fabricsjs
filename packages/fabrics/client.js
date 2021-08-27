@@ -1,5 +1,4 @@
-const fs = require('fs')
-const config = require('./config')
+const { writeGeneratedClientFile } = require('./filestructure')
 
 const { getStateName, forFragments } = require('./common')
 
@@ -23,11 +22,7 @@ const fragmentName = '${fragmentName}'
         hydrate(<ReloadedFragment {...preloadedState} />, rootElement)
       })
     }`
-  const distDir = config.distDir
-  if (!fs.existsSync(distDir)) {
-    fs.mkdirSync(distDir)
-  }
-  fs.writeFileSync(`${distDir}/${fragmentName}-client.js`, jsFileContent)
+  writeGeneratedClientFile(fragmentName, jsFileContent)
 }
 
 const generateClientJs = () => {

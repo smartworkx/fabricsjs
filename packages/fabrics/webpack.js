@@ -3,6 +3,8 @@ const config = require('./config')
 const isObject = require('is-object')
 const path = require('path')
 const chokidar = require('chokidar')
+const AssetsPlugin = require('assets-webpack-plugin')
+
 const { forFragments } = require('./common')
 
 const getFragments = () => {
@@ -97,7 +99,7 @@ const prepare = (server) => {
         const fragmentName = parts[parts.length - 2].replace('.js', '')
         console.log(`Fragment ${fragmentName} changed compiling and deleting from require cache`)
         await compileFragment(fragmentName)
-        delete require.cache[require.resolve(`${process.cwd()}/dist/${fragmentName}`)]
+        delete require.cache[require.resolve(`${config.distDir}/${fragmentName}`)]
       })
 
       serverCompiler.run((err, stats) => {
@@ -112,11 +114,17 @@ const prepare = (server) => {
         }
       })
     } else {
+      const productionClientWebpackConfig = {
+        ...clientWebPackConfig,
+        mode: 'production'
+      }
+      productionClientWebpackConfig.plugins.push(    new AssetsPlugin({
+        prettyPrint: true,
+        path: path.join(config.distDir)
+      }))
+      productionClientWebpackConfig.output.filename = '[name]-[chunkhash].js'
       const compiler = webpack([
-        {
-          ...clientWebPackConfig,
-          mode: 'production'
-        },
+        productionClientWebpackConfig,
         {
           ...webPackConfig,
           mode: 'production'
@@ -189,7 +197,7 @@ const getJsFileName = (webpack, fragmentName) => {
 }
 
 function getCompiledFragmentPathname (fragmentName) {
-  return `../dist/${fragmentName}`
+  return `${config.distDir}/${fragmentName}`
 }
 
 module.exports = { prepare, getFragmentStream, getJsFileName, getCompiledFragmentPathname }
