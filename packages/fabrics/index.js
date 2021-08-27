@@ -6,68 +6,73 @@ const config = require('./config')
 const { generateClientJs } = require('./client')
 const fs = require('fs')
 
-let assets = null
-
-const renderFragment = (html, preloadedState, fragmentName, assetPrefix, jsFileName) => {
+const renderFragment = (html, preloadedState, fragmentName, jsFileName) => {
   return `<html>
       <body>
         <div id="${fragmentName}">${html}</div>
         <script>
           window.${getStateName(fragmentName)} = ${JSON.stringify(preloadedState).replace(/</g, '\\x3c')}
         </script>
-        <script src="${assetPrefix}/${jsFileName}"></script>
+        <script src="${config.assetHost}/${config.assetPrefix}/${jsFileName}"></script>
       </body>
      <html>`
 }
 
-function getAssetConfig (fragmentName) {
-  if (assets == null) {
-    const contents = fs.readFileSync(`${config.distDir}/webpack-assets.json`, { encoding: 'utf8' })
-    assets = JSON.parse(contents)
+function getFragmentNameFromRequest (req) {
+  const urlParts = req.url.split('/')
+  return urlParts[urlParts.length - 1].replaceAll('.js', '')
+}
+
+async function getServerSideProps (fragmentName, req) {
+  const fragmentServerFile = require.main.require(`./fragments/${fragmentName}/server`)
+  let props = {}
+  if (fragmentServerFile) {
+    if (fragmentServerFile.getServerSideProps) {
+      props = await fragmentServerFile.getServerSideProps(req)
+    }
   }
-  const assetName = `${fragmentName}`
-  const assetConfig = assets[assetName]
-  if (!assetConfig) {
-    throw new Error(`ERROR, Cannot find ${assetName} in assets.json`)
+  return props
+}
+
+function getJsFileName (webDevMiddleWareWebpack, fragmentName) {
+  if (webDevMiddleWareWebpack) {
+    return fabricsWebpack.getJsFileName(webDevMiddleWareWebpack, fragmentName)
+  } else {
+    return fabricsWebpack.getAssetConfig(fragmentName).js.replaceAll('/','')
   }
-  return assetConfig
 }
 
 module.exports = () => {
   return {
     getRequestHandler: () => async (req, res) => {
-      const fragmentName = 'posts'
-      const fragment = require(fabricsWebpack.getCompiledFragmentPathname(fragmentName))
-      const fragmentServerFile = require.main.require(`./fragments/${fragmentName}/server`)
-      let props = {}
-      if (fragmentServerFile) {
-        if (fragmentServerFile.getServerSideProps) {
-          props = await fragmentServerFile.getServerSideProps(req)
-        }
-      }
+      console.log(`fabrics handling request ${req.url}`)
       const webDevMiddleWareWebpack = res.locals.webpack
-
-      if (req.path.match(config.assetPrefix)) {
+      if (req.url.match(config.assetPrefix)) {
         let readStream
         if (webDevMiddleWareWebpack) {
+          const fragmentName = getFragmentNameFromRequest(req)
           readStream = fabricsWebpack.getFragmentStream(webDevMiddleWareWebpack, fragmentName)
         } else {
-          readStream = fs.createReadStream(config.distDir + '/client/' + getAssetConfig(fragmentName).js)
+          const urlParts = req.url.split('/')
+          const jsFileName = urlParts[urlParts.length - 1]
+          readStream = fs.createReadStream(config.distDir + '/client/' + jsFileName)
         }
         readStream.pipe(res)
       } else {
-        if (fragment) {
-          const html = reactServer.renderToString(React.createElement(fragment, props))
-
-          let jsFileName = `${fragmentName}-client.js`
-          if (webDevMiddleWareWebpack) {
-            jsFileName = fabricsWebpack.getJsFileName(webDevMiddleWareWebpack, fragmentName)
-          } else {
-            jsFileName = getAssetConfig(fragmentName).js
+        if (req.url.match('fragments')) {
+          const fragmentName = getFragmentNameFromRequest(req)
+          let fragment
+          try {
+            fragment = require(fabricsWebpack.getCompiledFragmentPathname(fragmentName))
+          } catch (e) {
+            console.log(`No fragment found for ${fragmentName} ${e.message}`)
+            res.send(`No fragment found for ${fragmentName}`)
+            return
           }
-          res.send(renderFragment(html, props, fragmentName, config.assetPrefix, jsFileName))
-        } else {
-          res.send(`No fragment found for ${fragmentName}`)
+          const props = await getServerSideProps(fragmentName, req)
+          const html = reactServer.renderToString(React.createElement(fragment, props))
+          const jsFileName = getJsFileName(webDevMiddleWareWebpack, fragmentName)
+          res.send(renderFragment(html, props, fragmentName, jsFileName))
         }
       }
     },

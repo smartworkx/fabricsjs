@@ -3,10 +3,13 @@ const config = require('./config')
 const isObject = require('is-object')
 const path = require('path')
 const chokidar = require('chokidar')
+const { merge } = require('webpack-merge')
+const fs = require('fs')
 const AssetsPlugin = require('assets-webpack-plugin')
 
 const { forFragments } = require('./common')
 
+let assets = null
 const getFragments = () => {
   const fragmentEntries = {}
   forFragments((fragmentName) => {
@@ -79,70 +82,73 @@ const clientWebPackConfig = {
 // wait for both promises
 const prepare = (server) => {
   return new Promise((resolve, reject) => {
-    if (config.dev) {
-      webPackConfig.mode = 'development'
+      if (config.dev) {
+        webPackConfig.mode = 'development'
 
-      clientWebPackConfig.mode = 'development'
-      clientWebPackConfig.plugins = [
-        new webpack.HotModuleReplacementPlugin(),
-        new webpack.NoEmitOnErrorsPlugin()
-      ]
+        clientWebPackConfig.mode = 'development'
+        clientWebPackConfig.plugins = [
+          new webpack.HotModuleReplacementPlugin(),
+          new webpack.NoEmitOnErrorsPlugin()
+        ]
 
-      const clientCompiler = webpack(clientWebPackConfig)
-      server.use(require('webpack-dev-middleware')(clientCompiler, { serverSideRender: true }))
-      server.use(require('webpack-hot-middleware')(clientCompiler))
+        const clientCompiler = webpack(clientWebPackConfig)
+        server.use(require('webpack-dev-middleware')(clientCompiler, { serverSideRender: true }))
+        server.use(require('webpack-hot-middleware')(clientCompiler))
 
-      const serverCompiler = webpack(webPackConfig)
+        const serverCompiler = webpack(webPackConfig)
 
-      chokidar.watch('./src/fragments').on('change', async (event, path) => {
-        const parts = event.split('/')
-        const fragmentName = parts[parts.length - 2].replace('.js', '')
-        console.log(`Fragment ${fragmentName} changed compiling and deleting from require cache`)
-        await compileFragment(fragmentName)
-        delete require.cache[require.resolve(`${config.distDir}/${fragmentName}`)]
-      })
+        chokidar.watch('./src/fragments').on('change', async (event, path) => {
+          const parts = event.split('/')
+          const fragmentName = parts[parts.length - 2].replace('.js', '')
+          console.log(`Fragment ${fragmentName} changed compiling and deleting from require cache`)
+          await compileFragment(fragmentName)
+          delete require.cache[require.resolve(`${config.distDir}/${fragmentName}`)]
+        })
 
-      serverCompiler.run((err, stats) => {
-        if (err || stats.hasErrors()) {
-          // Handle errors here
-          stats.compilation.errors.forEach(error => console.log(error.message))
-          console.log(`Error ${err}`)
-          reject(err)
-        } else {
-          console.log('Done processing server')
-          resolve()
-        }
-      })
-    } else {
-      const productionClientWebpackConfig = {
-        ...clientWebPackConfig,
-        mode: 'production'
-      }
-      productionClientWebpackConfig.plugins.push(    new AssetsPlugin({
-        prettyPrint: true,
-        path: path.join(config.distDir)
-      }))
-      productionClientWebpackConfig.output.filename = '[name]-[chunkhash].js'
-      const compiler = webpack([
-        productionClientWebpackConfig,
-        {
-          ...webPackConfig,
+        serverCompiler.run((err, stats) => {
+          if (err || stats.hasErrors()) {
+            // Handle errors here
+            stats.compilation.errors.forEach(error => console.log(error.message))
+            console.log(`Error ${err}`)
+            reject(err)
+          } else {
+            console.log('Done processing server')
+            resolve()
+          }
+        })
+      } else {
+        let productionClientWebpackConfig = {
+          ...clientWebPackConfig,
           mode: 'production'
         }
-      ])
-      compiler.run((err, stats) => {
-        if (err || stats.hasErrors()) {
-          // Handle errors here
-          stats.compilation.errors.forEach(error => console.log(error.message))
-          console.log(`Error ${err}`)
-          reject(err)
-        } else {
-          console.log('Done processing processing client and server')
-          resolve()
+        productionClientWebpackConfig.plugins.push(new AssetsPlugin({
+          prettyPrint: true,
+          path: path.join(config.distDir)
+        }))
+        productionClientWebpackConfig.output.filename = '[name]-[chunkhash].js'
+        if (config.webpack.client.production) {
+          productionClientWebpackConfig = merge(productionClientWebpackConfig, config.webpack.client.production)
         }
-      })
+        const compiler = webpack([
+          productionClientWebpackConfig,
+          {
+            ...webPackConfig,
+            mode: 'production'
+          }
+        ])
+        compiler.run((err, stats) => {
+          if (err || stats.hasErrors()) {
+            // Handle errors here
+            stats.compilation.errors.forEach(error => console.log(error.message))
+            console.log(`Error ${err}`)
+            reject(err)
+          } else {
+            console.log('Done processing processing client and server')
+            resolve()
+          }
+        })
+      }
     }
-  }
   )
 }
 
@@ -200,4 +206,17 @@ function getCompiledFragmentPathname (fragmentName) {
   return `${config.distDir}/${fragmentName}`
 }
 
-module.exports = { prepare, getFragmentStream, getJsFileName, getCompiledFragmentPathname }
+function getAssetConfig (fragmentName) {
+  if (assets == null) {
+    const contents = fs.readFileSync(`${config.distDir}/webpack-assets.json`, { encoding: 'utf8' })
+    assets = JSON.parse(contents)
+  }
+  const assetName = `${fragmentName}`
+  const assetConfig = assets[assetName]
+  if (!assetConfig) {
+    throw new Error(`ERROR, Cannot find ${assetName} in assets.json`)
+  }
+  return assetConfig
+}
+
+module.exports = { prepare, getFragmentStream, getJsFileName, getCompiledFragmentPathname, getAssetConfig }

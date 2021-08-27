@@ -27,7 +27,8 @@
     "webpack": "^5.51.1",
     "webpack-bundle-analyzer": "^4.4.2",
     "webpack-dev-middleware": "^5.0.0",
-    "webpack-hot-middleware": "^2.25.0"
+    "webpack-hot-middleware": "^2.25.0",
+    "webpack-merge": "^5.8.0"
   },
   "devDependencies": {
     "jest": "^27.0.6",
