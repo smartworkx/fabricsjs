@@ -5,7 +5,6 @@ function getGeneratedClientFile (fragmentName) {
   return `${config.distDir}/${fragmentName}-client.js`
 }
 
-
 function writeGeneratedClientFile (fragmentName, jsFileContent) {
   const distDir = config.distDir
   if (!fs.existsSync(distDir)) {

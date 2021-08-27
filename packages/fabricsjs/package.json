@@ -2,10 +2,11 @@
   "name": "fabricsjs",
   "version": "0.0.1",
   "description": "Nextjs like framework for creating fragments for micro frontend applications",
-  "main": "./index.js",
+  "main": "./src/index.js",
   "scripts": {
-    "test": "test",
-    "standard": "standard --fix"
+    "test": "jest",
+    "standard:fix": "standard --fix",
+    "standard": "standard"
   },
   "keywords": [
     "nextjs",
@@ -17,6 +18,7 @@
   "license": "ISC",
   "dependencies": {
     "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.15.0",
     "@babel/preset-react": "^7.0.0",
     "@babel/register": "^7.5.5",
     "assets-webpack-plugin": "^7.1.1",
@@ -32,7 +34,11 @@
   },
   "devDependencies": {
     "jest": "^27.0.6",
-    "lerna": "^4.0.0",
     "standard": "^13.0.2"
+  },
+  "standard": {
+    "env": [
+      "jest"
+    ]
   }
 }
