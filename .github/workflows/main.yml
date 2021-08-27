@@ -21,11 +21,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Test for ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      - run: npm lerna run ci
-      - run: npm lerna run standard
-      - run: npm lerna run test
+      - run: npm ci
+      - run: npx lerna run ci
+      - run: npx lerna run standard
+      - run: npx lerna run test
