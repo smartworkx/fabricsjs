@@ -34,7 +34,6 @@
   },
   "devDependencies": {
     "jest": "^27.0.6",
-    "lerna": "^4.0.0",
     "standard": "^13.0.2"
   },
   "standard": {
