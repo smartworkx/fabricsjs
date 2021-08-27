@@ -56,8 +56,7 @@ module.exports = () => {
           res.send(`No fragment found for ${fragmentName}`)
         }
       }
-    }
-    ,
+    },
     prepare: (server) => {
       deleteFolderRecursive(config.distDir)
       generateClientJs()

@@ -35,7 +35,10 @@ app can expose your fragments server side rendered or statically generated.
 ## Features to add/things to fix
 - cache busting
 - webpack customizations
-- static fragment generation
+- sfg
+- good sfg development experience  
+- sfg export to S3
+- triggering  from bitbucket  
 - should not be necessary to use commonjs for exporting fragments
 - dependencies in projects using fabrics should be kept to minimum
 - cli
