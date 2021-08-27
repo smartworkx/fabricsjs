@@ -8,6 +8,7 @@ app can expose your fragments server side rendered or statically generated.
 ## Features
 - easy server side rendering
 - hot code reloading during development
+- cache busting
 
 ## Getting started
 
@@ -33,10 +34,12 @@ app can expose your fragments server side rendered or statically generated.
 - As much as possible for now for simplicity
 
 ## Features to add/things to fix
-- cache busting
 - webpack customizations
 - sfg
-- good sfg development experience  
+- add cypress for testing examples
+- run standard in pipeline
+- run tests in pipeline
+- good sfg development experience
 - sfg export to S3
 - triggering  from bitbucket  
 - should not be necessary to use commonjs for exporting fragments
