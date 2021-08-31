@@ -1,5 +1,5 @@
 const webpack = require('webpack')
-const config = require('./src/config')
+const config = require('./config')
 const isObject = require('is-object')
 const path = require('path')
 const chokidar = require('chokidar')
@@ -7,7 +7,7 @@ const { merge } = require('webpack-merge')
 const fs = require('fs')
 const AssetsPlugin = require('assets-webpack-plugin')
 
-const { forFragments } = require('./src/common')
+const { forFragments } = require('./common')
 
 let assets = null
 const getFragments = () => {

@@ -52,3 +52,4 @@ Add an object under webpack.client.production this will be merged into the webpa
 - cli
 - npm run build  
 - extendability
+- koajs support?

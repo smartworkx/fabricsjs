@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "node --inspect src/server.js",
-    "build": "fabricsjs build",
     "start": "cross-env ASSET_HOST=http://localhost:3000 NODE_ENV=production node src/server.js"
   },
   "dependencies": {
