@@ -5,6 +5,7 @@ const fabricsWebpack = require('../webpack')
 const config = require('./config')
 const { generateClientJs } = require('./client')
 const fs = require('fs')
+const { generate } = require('./sfg')
 
 const renderFragment = (html, preloadedState, fragmentName, jsFileName) => {
   return `<html>
@@ -44,6 +45,7 @@ function getJsFileName (webDevMiddleWareWebpack, fragmentName) {
 
 module.exports = () => {
   return {
+    sfg: generate,
     getRequestHandler: () => async (req, res) => {
       console.log(`fabrics handling request ${req.url}`)
       const webDevMiddleWareWebpack = res.locals.webpack
@@ -72,7 +74,8 @@ module.exports = () => {
           const props = await getServerSideProps(fragmentName, req)
           const html = reactServer.renderToString(React.createElement(fragment, props))
           const jsFileName = getJsFileName(webDevMiddleWareWebpack, fragmentName)
-          res.send(renderFragment(html, props, fragmentName, jsFileName))
+          const renderedFragment = renderFragment(html, props, fragmentName, jsFileName)
+          res.send(renderedFragment)
         }
       }
     },

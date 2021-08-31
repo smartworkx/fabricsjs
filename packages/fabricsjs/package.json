@@ -32,10 +32,6 @@
     "webpack-hot-middleware": "^2.25.0",
     "webpack-merge": "^5.8.0"
   },
-  "devDependencies": {
-    "jest": "^27.0.6",
-    "standard": "^13.0.2"
-  },
   "standard": {
     "env": [
       "jest"

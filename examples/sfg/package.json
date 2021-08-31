@@ -2,7 +2,7 @@
   "name": "sfg",
   "version": "1.0.0",
   "scripts": {
-    "dev": "node --inspect src/server.js",
+    "dev": "node ./node_modules/fabricsjs/src/sfg/testServer.js src/main.js",
     "build": "fabricsjs build",
     "start": "cross-env NODE_ENV=production node src/server.js"
   },
@@ -12,14 +12,10 @@
     "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.6",
     "express": "^4.14.0",
-    "fabricsjs": "file:../../packages/fabrics-core",
+    "fabricsjs": "file:../../packages/fabricsjs",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "webpack": "^5.51.1",
     "webpack-hot-middleware": "^2.25.0"
-  },
-  "devDependencies": {
-    "cross-env": "^5.2.0",
-    "jest": "^27.0.6"
   }
 }

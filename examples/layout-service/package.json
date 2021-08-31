@@ -4,7 +4,7 @@
   "description": "Layout service for poc",
   "main": " ",
   "scripts": {
-    "start": "node --inspect index.js"
+    "dev": "node --inspect index.js"
   },
   "author": "",
   "license": "ISC",

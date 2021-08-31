@@ -42,12 +42,11 @@ Add an object under webpack.client.production this will be merged into the webpa
 ## Features to add/things to fix
 - sfg
 - add cypress for testing examples
-- run standard in pipeline
-- run tests in pipeline
 - good sfg development experience
 - sfg export to S3
 - triggering  from bitbucket  
 - should not be necessary to use commonjs for exporting fragments
+- fabrics.config.js should be optional
 - dependencies in projects using fabrics should be kept to minimum
 - cli
 - npm run build  
