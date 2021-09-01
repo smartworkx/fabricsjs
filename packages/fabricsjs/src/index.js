@@ -1,7 +1,7 @@
 const React = require('react')
 const reactServer = require('react-dom/server')
 const { getStateName, deleteFolderRecursive } = require('./common')
-const fabricsWebpack = require('../webpack')
+const fabricsWebpack = require('./webpack')
 const config = require('./config')
 const { generateClientJs } = require('./client')
 const fs = require('fs')
@@ -80,8 +80,10 @@ module.exports = () => {
       }
     },
     prepare: (server) => {
-      deleteFolderRecursive(config.distDir)
-      generateClientJs()
+      if (config.dev) {
+        deleteFolderRecursive(config.distDir)
+        generateClientJs()
+      }
       return fabricsWebpack.prepare(server)
     }
   }

@@ -12,5 +12,5 @@ const defaultConfig = {
 module.exports = {
   ...defaultConfig,
   ...config,
-  dev: process.env.NODE_ENV !== 'production'
+  dev: process.env.NODE_ENV === 'development'
 }

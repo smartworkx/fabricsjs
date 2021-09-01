@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Nextjs like framework for creating fragments for micro frontend applications",
   "main": "./src/index.js",
+  "bin": "./src/cli/index.js",
   "scripts": {
     "test": "jest",
     "standard:fix": "standard --fix",
@@ -24,6 +25,7 @@
     "assets-webpack-plugin": "^7.1.1",
     "chokidar": "^3.5.2",
     "is-object": "^1.0.2",
+    "meow": "^8.1.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "webpack": "^5.51.1",
