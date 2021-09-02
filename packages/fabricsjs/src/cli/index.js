@@ -2,12 +2,7 @@
 
 (async () => {
   const meow = require('meow')
-  const build = require('./build')
-  const start = require('./start')
-  const dev = require('./dev')
-  const doExport = require('./export')
   console.log('start')
-
   try {
     const cli = meow(`
 	Usage
@@ -27,12 +22,17 @@
 
     const command = cli.input[0]
     if (command === 'build') {
+      const build = require('./build')
       await build()
     } else if( command === 'start'){
+      const start = require('./start')
       await start()
     } else if( command === 'dev'){
+      process.env.NODE_ENV = 'development'
+      const dev = require('./dev')
       await dev()
     } else if( command === 'export'){
+      const doExport = require('./export')
       await doExport()
     }
 

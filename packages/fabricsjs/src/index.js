@@ -25,7 +25,7 @@ function getFragmentNameFromRequest (req) {
 }
 
 async function getServerSideProps (fragmentName, req) {
-  const fragmentServerFile = require.main.require(`./fragments/${fragmentName}/server`)
+  const fragmentServerFile = require(`${process.cwd()}/src/fragments/${fragmentName}/server`)
   let props = {}
   if (fragmentServerFile) {
     if (fragmentServerFile.getServerSideProps) {
