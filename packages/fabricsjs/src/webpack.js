@@ -6,17 +6,27 @@ const chokidar = require('chokidar')
 const { merge } = require('webpack-merge')
 const fs = require('fs')
 const AssetsPlugin = require('assets-webpack-plugin')
+const { getClientDistDir } = require('./filestructure')
 
 const { forFragments } = require('./common')
 
 let assets = null
-const getFragments = () => {
+const getFragments = (fragmentNameParameter) => {
   const fragmentEntries = {}
-  forFragments((fragmentName) => {
+
+  const addFragmentEntry = fragmentName => {
     const fragmentPath = `${config.fragmentsDir}/${fragmentName}`
     const entries = [fragmentPath]
     fragmentEntries[`${fragmentName}`] = entries
-  })
+  }
+
+  if (fragmentNameParameter) {
+    addFragmentEntry(fragmentNameParameter)
+  } else {
+    forFragments((fragmentName) => {
+      addFragmentEntry(fragmentName)
+    })
+  }
   return fragmentEntries
 }
 
@@ -42,9 +52,10 @@ const webpackConfig = {
   }
 }
 
-function getClientFragments () {
+const getClientFragments = (fragmentNameParameter) => {
   const fragmentEntries = {}
-  forFragments((fragmentName) => {
+
+  const addFragmentEntry = fragmentName => {
     const fragmentPath = `${config.distDir}/${fragmentName}-client`
     const entries = []
     if (config.dev) {
@@ -52,7 +63,15 @@ function getClientFragments () {
     }
     entries.push(fragmentPath)
     fragmentEntries[`${fragmentName}`] = entries
-  })
+  }
+
+  if (fragmentNameParameter) {
+    addFragmentEntry(fragmentNameParameter)
+  } else {
+    forFragments((fragmentName) => {
+      addFragmentEntry(fragmentName)
+    })
+  }
   return fragmentEntries
 }
 
@@ -60,7 +79,7 @@ const clientWebpackConfig = {
   entry: getClientFragments(),
   output: {
     publicPath: '/',
-    path: config.distDir + '/client'
+    path: getClientDistDir()
   },
   module: {
     rules: [
@@ -79,11 +98,14 @@ const clientWebpackConfig = {
   plugins: []
 }
 
-const buildProduction = () => {
+const buildProduction = (fragmentName) => {
   return new Promise((resolve, reject) => {
     let productionClientWebpackConfig = {
       ...clientWebpackConfig,
       mode: 'production'
+    }
+    if (fragmentName) {
+      productionClientWebpackConfig.entry = getClientFragments(fragmentName)
     }
     productionClientWebpackConfig.plugins.push(new AssetsPlugin({
       prettyPrint: true,
@@ -103,7 +125,15 @@ const buildProduction = () => {
     compiler.run((err, stats) => {
       if (err || stats.hasErrors()) {
         // Handle errors here
-        stats.compilation.errors.forEach(error => console.log(error.message))
+        if (stats.compilation) {
+          stats.compilation.errors.forEach(error => console.log(error.message))
+        } else if (Array.isArray(stats.stats)) {
+          stats.stats.forEach(stat => {
+            if (stat.compilation) {
+              stat.compilation.errors.forEach(error => console.log(error.message))
+            }
+          })
+        }
         console.log(`Error ${err}`)
         reject(err)
       } else {
@@ -131,8 +161,6 @@ const prepare = (server) => {
         server.use(require('webpack-dev-middleware')(clientCompiler, { serverSideRender: true }))
         server.use(require('webpack-hot-middleware')(clientCompiler))
 
-        const serverCompiler = webpack(webpackConfig)
-
         chokidar.watch('./src/fragments').on('change', async (event, path) => {
           const parts = event.split('/')
           const fragmentName = parts[parts.length - 2].replace('.js', '')
@@ -141,6 +169,7 @@ const prepare = (server) => {
           delete require.cache[require.resolve(`${config.distDir}/${fragmentName}`)]
         })
 
+        const serverCompiler = webpack(webpackConfig)
         serverCompiler.run((err, stats) => {
           if (err || stats.hasErrors()) {
             // handle errors here
@@ -152,7 +181,7 @@ const prepare = (server) => {
             resolve()
           }
         })
-      }else {
+      } else {
         resolve()
       }
     }
@@ -226,4 +255,11 @@ function getAssetConfig (fragmentName) {
   return assetConfig
 }
 
-module.exports = { prepare, getFragmentStream, getJsFileName, getCompiledFragmentPathname, getAssetConfig, build: buildProduction }
+module.exports = {
+  prepare,
+  getFragmentStream,
+  getJsFileName,
+  getCompiledFragmentPathname,
+  getAssetConfig,
+  build: buildProduction
+}

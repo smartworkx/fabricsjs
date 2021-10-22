@@ -1,23 +1,12 @@
 const React = require('react')
-const reactServer = require('react-dom/server')
-const { getStateName, deleteFolderRecursive } = require('./common')
+const { deleteFolderRecursive, requireFragmentServerJs } = require('./common')
 const fabricsWebpack = require('./webpack')
 const config = require('./config')
 const { generateClientJs } = require('./client')
 const fs = require('fs')
 const { generate } = require('./sfg')
+const {   render } = require('./renderer')
 
-const renderFragment = (html, preloadedState, fragmentName, jsFileName) => {
-  return `<html>
-      <body>
-        <div id="${fragmentName}">${html}</div>
-        <script>
-          window.${getStateName(fragmentName)} = ${JSON.stringify(preloadedState).replace(/</g, '\\x3c')}
-        </script>
-        <script src="${config.assetHost}/${config.assetPrefix}/${jsFileName}"></script>
-      </body>
-     <html>`
-}
 
 function getFragmentNameFromRequest (req) {
   const urlParts = req.url.split('/')
@@ -25,22 +14,18 @@ function getFragmentNameFromRequest (req) {
 }
 
 async function getServerSideProps (fragmentName, req) {
-  const fragmentServerFile = require(`${process.cwd()}/src/fragments/${fragmentName}/server`)
+  const fragmentServerFile = requireFragmentServerJs(fragmentName)
   let props = {}
   if (fragmentServerFile) {
     if (fragmentServerFile.getServerSideProps) {
       props = await fragmentServerFile.getServerSideProps(req)
+    } else {
+      if(fragmentServerFile.getStaticProps){
+        props = fragmentServerFile.getStaticProps({})
+      }
     }
   }
   return props
-}
-
-function getJsFileName (webDevMiddleWareWebpack, fragmentName) {
-  if (webDevMiddleWareWebpack) {
-    return fabricsWebpack.getJsFileName(webDevMiddleWareWebpack, fragmentName)
-  } else {
-    return fabricsWebpack.getAssetConfig(fragmentName).js.replaceAll('/', '')
-  }
 }
 
 module.exports = () => {
@@ -72,9 +57,7 @@ module.exports = () => {
             return
           }
           const props = await getServerSideProps(fragmentName, req)
-          const html = reactServer.renderToString(React.createElement(fragment, props))
-          const jsFileName = getJsFileName(webDevMiddleWareWebpack, fragmentName)
-          const renderedFragment = renderFragment(html, props, fragmentName, jsFileName)
+          const renderedFragment = render({fragment, props, fragmentName, webDevMiddleWareWebpack})
           res.send(renderedFragment)
         }
       }

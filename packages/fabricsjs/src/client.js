@@ -32,5 +32,6 @@ const generateClientJs = () => {
 }
 
 module.exports = {
-  generateClientJs
+  generateClientJs,
+  generateClientJsFragment
 }

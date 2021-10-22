@@ -33,11 +33,10 @@
       await dev()
     } else if( command === 'export'){
       const doExport = require('./export')
-      await doExport()
+      await doExport({ fragmentName: cli.input[1], context: cli.flags})
     }
-
   } catch (err) {
-    console.error(err.message)
+    console.error(err.stack)
   } finally {
     console.log('end')
   }
