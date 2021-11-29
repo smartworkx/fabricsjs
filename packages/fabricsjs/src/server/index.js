@@ -7,8 +7,7 @@ const fabricsRequestHandler = app.getRequestHandler()
 
 const server = express()
 app.prepare(server).then(() => {
-
-  server.get('*',fabricsRequestHandler)
+  server.get('*', fabricsRequestHandler)
 
   server.listen(port, err => {
     if (err) throw err

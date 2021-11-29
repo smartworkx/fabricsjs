@@ -15,7 +15,7 @@ const getFragmentNames = () => {
   return fragmentNames
 }
 
-const forFragments =  fn => {
+const forFragments = fn => {
   for (const fragmentName of getFragmentNames()) {
     fn(fragmentName)
   }

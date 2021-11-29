@@ -6,15 +6,11 @@ const config = require('./config')
 
 const renderFragment = (html, preloadedState, fragmentName, jsFileName, assetPrefixParam) => {
   const assetPrefix = assetPrefixParam || `${config.assetHost}/${config.assetPrefix}`
-  return `<html>
-      <body>
-        <div id="${fragmentName}">${html}</div>
+  return `<div id="${fragmentName}">${html}</div>
         <script>
           window.${getStateName(fragmentName)} = ${JSON.stringify(preloadedState).replace(/</g, '\\x3c')}
         </script>
-        <script src="${assetPrefix}/${jsFileName}"></script>
-      </body>
-     <html>`
+        <script async src="${assetPrefix}/${jsFileName}"></script>`
 }
 
 const getJsFileName = (webDevMiddleWareWebpack, fragmentName) => {
@@ -25,7 +21,7 @@ const getJsFileName = (webDevMiddleWareWebpack, fragmentName) => {
   }
 }
 
-const render = ({fragment, props, fragmentName, webDevMiddleWareWebpack, assetPrefix}) => {
+const render = ({ fragment, props, fragmentName, webDevMiddleWareWebpack, assetPrefix }) => {
   const html = reactServer.renderToString(React.createElement(fragment, props))
   const jsFileName = getJsFileName(webDevMiddleWareWebpack, fragmentName)
   return renderFragment(html, props, fragmentName, jsFileName, assetPrefix)

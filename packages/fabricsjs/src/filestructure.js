@@ -14,6 +14,7 @@ function writeGeneratedClientFile (fragmentName, jsFileContent) {
 }
 const getClientDistDir = () => config.distDir + '/client'
 module.exports = {
-  getGeneratedClientFile, writeGeneratedClientFile,
+  getGeneratedClientFile,
+  writeGeneratedClientFile,
   getClientDistDir
 }

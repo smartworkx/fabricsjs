@@ -1,12 +1,10 @@
-const React = require('react')
 const { deleteFolderRecursive, requireFragmentServerJs } = require('./common')
 const fabricsWebpack = require('./webpack')
 const config = require('./config')
 const { generateClientJs } = require('./client')
 const fs = require('fs')
 const { generate } = require('./sfg')
-const {   render } = require('./renderer')
-
+const { render } = require('./renderer')
 
 function getFragmentNameFromRequest (req) {
   const urlParts = req.url.split('/')
@@ -20,7 +18,7 @@ async function getServerSideProps (fragmentName, req) {
     if (fragmentServerFile.getServerSideProps) {
       props = await fragmentServerFile.getServerSideProps(req)
     } else {
-      if(fragmentServerFile.getStaticProps){
+      if (fragmentServerFile.getStaticProps) {
         props = fragmentServerFile.getStaticProps({})
       }
     }
@@ -57,7 +55,7 @@ module.exports = () => {
             return
           }
           const props = await getServerSideProps(fragmentName, req)
-          const renderedFragment = render({fragment, props, fragmentName, webDevMiddleWareWebpack})
+          const renderedFragment = render({ fragment, props, fragmentName, webDevMiddleWareWebpack })
           res.send(renderedFragment)
         }
       }

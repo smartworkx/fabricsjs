@@ -5,35 +5,35 @@
   console.log('start')
   try {
     const cli = meow(`
-	Usage
-	  $ fabricsjs <input>
+    Usage
+      $ fabricsjs <input>
 
-	Inputs:
-	  build
-	  dev
-	  export
-	  start
+    Inputs:
+      build
+      dev
+      export
+      start
 
-	Examples
-	  $ fabricsjs build
+    Examples
+      $ fabricsjs build
 `, {
-      importMeta: require.meta,
+      importMeta: require.meta
     })
 
     const command = cli.input[0]
     if (command === 'build') {
       const build = require('./build')
       await build()
-    } else if( command === 'start'){
+    } else if (command === 'start') {
       const start = require('./start')
       await start()
-    } else if( command === 'dev'){
+    } else if (command === 'dev') {
       process.env.NODE_ENV = 'development'
       const dev = require('./dev')
       await dev()
-    } else if( command === 'export'){
+    } else if (command === 'export') {
       const doExport = require('./export')
-      await doExport({ fragmentName: cli.input[1], context: cli.flags})
+      await doExport({ fragmentName: cli.input[1], context: cli.flags })
     }
   } catch (err) {
     console.error(err.stack)
@@ -41,5 +41,3 @@
     console.log('end')
   }
 })()
-
-
