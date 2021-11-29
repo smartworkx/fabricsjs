@@ -18,11 +18,13 @@ app can expose your fragments server side rendered or statically generated.
 
 ### Checkout example custom server express ssr.
 - use node 16 `nvm use 16`
-- run npm install in packages/fabrics-core
-- go to example examples/custom-server-express-ssr
-- run `npm install`
-- run `npm run dev`
-- create new fragments in the fragment directory
+- run `npx lerna bootstrap`
+- run `cd examples/custom-server-express-ssr/ && npm i`
+- run `cd examples/react17-dll/ && npm run build`
+- run `cd examples/custom-server-express-ssr/ && npm run dev`
+- run `cd examples/layout-service/ && npm run start`
+- open in a browser http://localhost:8080/template
+- create new fragments in the `examples/custom-server-express-ssr/src/fragments` directory
 
 ### Creating a new fragment for ssr
 - Create a new directory with the name of the fragment in src/fragments
