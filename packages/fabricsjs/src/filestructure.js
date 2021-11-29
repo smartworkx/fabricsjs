@@ -12,6 +12,9 @@ function writeGeneratedClientFile (fragmentName, jsFileContent) {
   }
   fs.writeFileSync(getGeneratedClientFile(fragmentName), jsFileContent)
 }
+const getClientDistDir = () => config.distDir + '/client'
 module.exports = {
-  getGeneratedClientFile, writeGeneratedClientFile
+  getGeneratedClientFile,
+  writeGeneratedClientFile,
+  getClientDistDir
 }

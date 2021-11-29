@@ -7,6 +7,7 @@ app can expose your fragments server side rendered or statically generated.
 
 ## Features
 - easy server side rendering
+- easy static generation
 - hot code reloading during development
 - cache busting
 - webpack customizations
@@ -36,22 +37,34 @@ app can expose your fragments server side rendered or statically generated.
 Currently only production client side webpack config by adding a (partial) webpack config in the fabrics.config.js.
 Add an object under webpack.client.production this will be merged into the webpack config with webpack merge
 
+## Server side rendering
+Fragments with a 'getServerSideProps' function will be server side rendered when the web server is ran with:
+- fabricsjs build
+- fabricsjs start
+
+in production.
+
+## Static generation
+Fragments with 'getStaticPaths' and 'getStaticProps' functions will not be ran when starting the webserver, but can be exported:
+- fabricsjs export \<fragment name> \<fragment instance id>
+
+in production. In development it is easiest to open an html file directly in a browser. The generated files are in dist/client.
+If you want to rerun the export every time you change the files you can do for example do that automatically 
+```nodemon --exec "npm run export fragment2 --id 2" --watch src```
+
+
 ## Features that are explicitly out of scope
 - Code splitting
 - Routing
 - As much as possible for now for simplicity
 
 ## Features to add/things to fix
-- sfg
+- prove that ssr works well in a lambda
+- https://nextjs.org/docs/advanced-features/preview-mode
 - add cypress for testing examples
-- run standard in pipeline
-- run tests in pipeline
-- good sfg development experience
-- sfg export to S3
-- triggering  from bitbucket  
 - should not be necessary to use commonjs for exporting fragments
+- fabrics.config.js should be optional
 - dependencies in projects using fabrics should be kept to minimum
-- cli
-- npm run build  
 - extendability
+- cli to create new project/fragment
 - koajs support?

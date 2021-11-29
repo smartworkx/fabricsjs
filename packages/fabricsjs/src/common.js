@@ -3,12 +3,22 @@ const config = require('./config')
 
 const getStateName = (fragmentName) => `__FABRICS_STATE_${fragmentName}__`
 
-const forFragments = fn => {
-  fs.readdirSync(config.fragmentsDir).forEach(function (file) {
+const getFragmentNames = () => {
+  const fragmentNames = []
+
+  for (const file of fs.readdirSync(config.fragmentsDir)) {
     const fileName = file.split('.')
     const fragmentName = fileName[0]
+    fragmentNames.push(fragmentName)
+  }
+
+  return fragmentNames
+}
+
+const forFragments = fn => {
+  for (const fragmentName of getFragmentNames()) {
     fn(fragmentName)
-  })
+  }
 }
 
 const deleteFolderRecursive = path => {
@@ -25,8 +35,14 @@ const deleteFolderRecursive = path => {
   }
 }
 
+const requireFragmentServerJs = (fragmentName) => {
+  return require(`${process.cwd()}/src/fragments/${fragmentName}/server`)
+}
+
 module.exports = {
   getStateName,
   forFragments,
-  deleteFolderRecursive
+  getFragmentNames,
+  deleteFolderRecursive,
+  requireFragmentServerJs
 }

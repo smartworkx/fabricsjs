@@ -1,9 +1,11 @@
 {
-  "name": "sfg",
+  "name": "basic",
   "version": "1.0.0",
   "scripts": {
-    "dev": "node ./node_modules/fabricsjs/src/sfg/testServer.js",
-    "start": "cross-env NODE_ENV=production node src/index.js"
+    "dev": "fabricsjs dev",
+    "build": "fabricsjs build",
+    "start": "fabricsjs start",
+    "export": "fabricsjs export"
   },
   "dependencies": {
     "@babel/core": "^7.5.5",

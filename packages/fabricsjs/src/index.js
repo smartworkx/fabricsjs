@@ -1,18 +1,10 @@
-const React = require('react')
-const reactServer = require('react-dom/server')
-const { getStateName, deleteFolderRecursive } = require('./common')
+const { deleteFolderRecursive, requireFragmentServerJs } = require('./common')
 const fabricsWebpack = require('./webpack')
 const config = require('./config')
 const { generateClientJs } = require('./client')
 const fs = require('fs')
-
-const renderFragment = (html, preloadedState, fragmentName, jsFileName) => {
-  return `<div id="${fragmentName}">${html}</div>
-          <script>
-            window.${getStateName(fragmentName)} = ${JSON.stringify(preloadedState).replace(/</g, '\\x3c')}
-          </script>
-          <script async src="${config.assetHost}/${config.assetPrefix}/${jsFileName}"></script>`
-}
+const { generate } = require('./sfg')
+const { render } = require('./renderer')
 
 function getFragmentNameFromRequest (req) {
   const urlParts = req.url.split('/')
@@ -20,26 +12,23 @@ function getFragmentNameFromRequest (req) {
 }
 
 async function getServerSideProps (fragmentName, req) {
-  const fragmentServerFile = require.main.require(`./fragments/${fragmentName}/server`)
+  const fragmentServerFile = requireFragmentServerJs(fragmentName)
   let props = {}
   if (fragmentServerFile) {
     if (fragmentServerFile.getServerSideProps) {
       props = await fragmentServerFile.getServerSideProps(req)
+    } else {
+      if (fragmentServerFile.getStaticProps) {
+        props = fragmentServerFile.getStaticProps({})
+      }
     }
   }
   return props
 }
 
-function getJsFileName (webDevMiddleWareWebpack, fragmentName) {
-  if (webDevMiddleWareWebpack) {
-    return fabricsWebpack.getJsFileName(webDevMiddleWareWebpack, fragmentName)
-  } else {
-    return fabricsWebpack.getAssetConfig(fragmentName).js.replaceAll('/', '')
-  }
-}
-
 module.exports = () => {
   return {
+    sfg: generate,
     getRequestHandler: () => async (req, res) => {
       console.log(`fabrics handling request ${req.url}`)
       const webDevMiddleWareWebpack = res.locals.webpack
@@ -66,15 +55,16 @@ module.exports = () => {
             return
           }
           const props = await getServerSideProps(fragmentName, req)
-          const html = reactServer.renderToString(React.createElement(fragment, props))
-          const jsFileName = getJsFileName(webDevMiddleWareWebpack, fragmentName)
-          res.send(renderFragment(html, props, fragmentName, jsFileName))
+          const renderedFragment = render({ fragment, props, fragmentName, webDevMiddleWareWebpack })
+          res.send(renderedFragment)
         }
       }
     },
     prepare: (server) => {
-      deleteFolderRecursive(config.distDir)
-      generateClientJs()
+      if (config.dev) {
+        deleteFolderRecursive(config.distDir)
+        generateClientJs()
+      }
       return fabricsWebpack.prepare(server)
     }
   }
