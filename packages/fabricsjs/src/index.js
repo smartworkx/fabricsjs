@@ -7,15 +7,11 @@ const { generateClientJs } = require('./client')
 const fs = require('fs')
 
 const renderFragment = (html, preloadedState, fragmentName, jsFileName) => {
-  return `<html>
-      <body>
-        <div id="${fragmentName}">${html}</div>
-        <script>
-          window.${getStateName(fragmentName)} = ${JSON.stringify(preloadedState).replace(/</g, '\\x3c')}
-        </script>
-        <script async src="${config.assetHost}/${config.assetPrefix}/${jsFileName}"></script>
-      </body>
-     <html>`
+  return `<div id="${fragmentName}">${html}</div>
+          <script>
+            window.${getStateName(fragmentName)} = ${JSON.stringify(preloadedState).replace(/</g, '\\x3c')}
+          </script>
+          <script async src="${config.assetHost}/${config.assetPrefix}/${jsFileName}"></script>`
 }
 
 function getFragmentNameFromRequest (req) {
