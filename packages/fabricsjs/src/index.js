@@ -13,7 +13,7 @@ const renderFragment = (html, preloadedState, fragmentName, jsFileName) => {
         <script>
           window.${getStateName(fragmentName)} = ${JSON.stringify(preloadedState).replace(/</g, '\\x3c')}
         </script>
-        <script src="${config.assetHost}/${config.assetPrefix}/${jsFileName}"></script>
+        <script async src="${config.assetHost}/${config.assetPrefix}/${jsFileName}"></script>
       </body>
      <html>`
 }
